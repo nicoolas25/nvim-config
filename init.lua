@@ -91,7 +91,7 @@ vim.g.mapleader = ' '
 vim.g.maplocalleader = ' '
 
 -- Set to true if you have a Nerd Font installed and selected in the terminal
-vim.g.have_nerd_font = false
+vim.g.have_nerd_font = true
 
 -- [[ Setting options ]]
 -- See `:help vim.o`
@@ -168,13 +168,14 @@ vim.o.confirm = true
 
 -- [[ Basic Keymaps ]]
 --  See `:help vim.keymap.set()`
+local map = vim.keymap.set
 
 -- Clear highlights on search when pressing <Esc> in normal mode
 --  See `:help hlsearch`
-vim.keymap.set('n', '<Esc>', '<cmd>nohlsearch<CR>')
+map('n', '<Esc>', '<cmd>nohlsearch<CR>')
 
 -- Diagnostic keymaps
-vim.keymap.set('n', '<leader>q', vim.diagnostic.setloclist, { desc = 'Open diagnostic [Q]uickfix list' })
+map('n', '<leader>q', vim.diagnostic.setloclist, { desc = 'Open diagnostic [Q]uickfix list' })
 
 -- Exit terminal mode in the builtin terminal with a shortcut that is a bit easier
 -- for people to discover. Otherwise, you normally need to press <C-\><C-n>, which
@@ -182,28 +183,51 @@ vim.keymap.set('n', '<leader>q', vim.diagnostic.setloclist, { desc = 'Open diagn
 --
 -- NOTE: This won't work in all terminal emulators/tmux/etc. Try your own mapping
 -- or just use <C-\><C-n> to exit terminal mode
-vim.keymap.set('t', '<Esc><Esc>', '<C-\\><C-n>', { desc = 'Exit terminal mode' })
+map('t', '<Esc><Esc>', '<C-\\><C-n>', { desc = 'Exit terminal mode' })
 
 -- TIP: Disable arrow keys in normal mode
--- vim.keymap.set('n', '<left>', '<cmd>echo "Use h to move!!"<CR>')
--- vim.keymap.set('n', '<right>', '<cmd>echo "Use l to move!!"<CR>')
--- vim.keymap.set('n', '<up>', '<cmd>echo "Use k to move!!"<CR>')
--- vim.keymap.set('n', '<down>', '<cmd>echo "Use j to move!!"<CR>')
+-- map('n', '<left>', '<cmd>echo "Use h to move!!"<CR>')
+-- map('n', '<right>', '<cmd>echo "Use l to move!!"<CR>')
+-- map('n', '<up>', '<cmd>echo "Use k to move!!"<CR>')
+-- map('n', '<down>', '<cmd>echo "Use j to move!!"<CR>')
 
 -- Keybinds to make split navigation easier.
 --  Use CTRL+<hjkl> to switch between windows
 --
 --  See `:help wincmd` for a list of all window commands
-vim.keymap.set('n', '<C-h>', '<C-w><C-h>', { desc = 'Move focus to the left window' })
-vim.keymap.set('n', '<C-l>', '<C-w><C-l>', { desc = 'Move focus to the right window' })
-vim.keymap.set('n', '<C-j>', '<C-w><C-j>', { desc = 'Move focus to the lower window' })
-vim.keymap.set('n', '<C-k>', '<C-w><C-k>', { desc = 'Move focus to the upper window' })
+map('n', '<C-h>', '<C-w><C-h>', { desc = 'Move focus to the left window' })
+map('n', '<C-l>', '<C-w><C-l>', { desc = 'Move focus to the right window' })
+map('n', '<C-j>', '<C-w><C-j>', { desc = 'Move focus to the lower window' })
+map('n', '<C-k>', '<C-w><C-k>', { desc = 'Move focus to the upper window' })
 
 -- NOTE: Some terminals have colliding keymaps or are not able to send distinct keycodes
--- vim.keymap.set("n", "<C-S-h>", "<C-w>H", { desc = "Move window to the left" })
--- vim.keymap.set("n", "<C-S-l>", "<C-w>L", { desc = "Move window to the right" })
--- vim.keymap.set("n", "<C-S-j>", "<C-w>J", { desc = "Move window to the lower" })
--- vim.keymap.set("n", "<C-S-k>", "<C-w>K", { desc = "Move window to the upper" })
+-- map("n", "<C-S-h>", "<C-w>H", { desc = "Move window to the left" })
+-- map("n", "<C-S-l>", "<C-w>L", { desc = "Move window to the right" })
+-- map("n", "<C-S-j>", "<C-w>J", { desc = "Move window to the lower" })
+-- map("n", "<C-S-k>", "<C-w>K", { desc = "Move window to the upper" })
+
+-- map("n", ";", ":", { desc = "CMD enter command mode" })
+-- map("i", "jk", "<ESC>")
+
+map('t', '<Esc>', '<C-\\><C-n>', { desc = 'exit terminal mode' })
+map('n', 'vv', ':vsplit<CR>', { desc = 'vertical split' })
+map('n', 'ss', ':split<CR>', { desc = 'horizontal split' })
+map('n', '<leader>ee', ':NvimTreeFindFile<CR>', { desc = 'Find file in nvim-tree' })
+map('n', ',es', function()
+  require('telescope.builtin').live_grep { default_text = vim.fn.expand '<cword>' }
+end, { desc = 'search word' })
+
+-- Remove Ctrl-X mapping from the terminal so it can hit the terminal.
+-- This is useful with pudb while running into neovim's terminal, because C-x is one of pudb's shortcut.
+-- vim.keymap.del('t', '<C-x>')
+
+----------------
+--  Abbrevations
+----------------
+vim.api.nvim_command 'abbr pdb! import ipdb; ipdb.set_trace()'
+vim.api.nvim_command 'abbr pdbb! from ipdb import launch_ipdb_on_exception<cr>with launch_ipdb_on_exception():<cr>'
+vim.api.nvim_command 'abbr rmd! # TODO: @nicolas.zermati 2024-12-31 Clean this'
+vim.api.nvim_command 'abbr nbsp!  '
 
 -- [[ Basic Autocommands ]]
 --  See `:help lua-guide-autocommands`
@@ -426,19 +450,20 @@ require('lazy').setup({
 
       -- See `:help telescope.builtin`
       local builtin = require 'telescope.builtin'
-      vim.keymap.set('n', '<leader>sh', builtin.help_tags, { desc = '[S]earch [H]elp' })
-      vim.keymap.set('n', '<leader>sk', builtin.keymaps, { desc = '[S]earch [K]eymaps' })
-      vim.keymap.set('n', '<leader>sf', builtin.find_files, { desc = '[S]earch [F]iles' })
-      vim.keymap.set('n', '<leader>ss', builtin.builtin, { desc = '[S]earch [S]elect Telescope' })
-      vim.keymap.set('n', '<leader>sw', builtin.grep_string, { desc = '[S]earch current [W]ord' })
-      vim.keymap.set('n', '<leader>sg', builtin.live_grep, { desc = '[S]earch by [G]rep' })
-      vim.keymap.set('n', '<leader>sd', builtin.diagnostics, { desc = '[S]earch [D]iagnostics' })
-      vim.keymap.set('n', '<leader>sr', builtin.resume, { desc = '[S]earch [R]esume' })
-      vim.keymap.set('n', '<leader>s.', builtin.oldfiles, { desc = '[S]earch Recent Files ("." for repeat)' })
-      vim.keymap.set('n', '<leader><leader>', builtin.buffers, { desc = '[ ] Find existing buffers' })
+      map('n', '<leader>sh', builtin.help_tags, { desc = '[S]earch [H]elp' })
+      map('n', '<leader>sk', builtin.keymaps, { desc = '[S]earch [K]eymaps' })
+      map('n', '<leader>sf', builtin.find_files, { desc = '[S]earch [F]iles' })
+      map('n', '<leader>ss', builtin.builtin, { desc = '[S]earch [S]elect Telescope' })
+      map('n', '<leader>sw', builtin.grep_string, { desc = '[S]earch current [W]ord' })
+      map('n', '<leader>sg', builtin.live_grep, { desc = '[S]earch by [G]rep' })
+      map('n', '<leader>sd', builtin.diagnostics, { desc = '[S]earch [D]iagnostics' })
+      map('n', '<leader>sr', builtin.resume, { desc = '[S]earch [R]esume' })
+      map('n', '<leader>s.', builtin.oldfiles, { desc = '[S]earch Recent Files ("." for repeat)' })
+      map('n', '<leader>sb', builtin.buffers, { desc = '[S]earch [B]uffers' })
+      map('n', '<leader><leader>', builtin.buffers, { desc = '[ ] Find existing buffers' })
 
       -- Slightly advanced example of overriding default behavior and theme
-      vim.keymap.set('n', '<leader>/', function()
+      map('n', '<leader>/', function()
         -- You can pass additional configuration to Telescope to change the theme, layout, etc.
         builtin.current_buffer_fuzzy_find(require('telescope.themes').get_dropdown {
           winblend = 10,
@@ -448,7 +473,7 @@ require('lazy').setup({
 
       -- It's also possible to pass additional configuration options.
       --  See `:help telescope.builtin.live_grep()` for information about particular keys
-      vim.keymap.set('n', '<leader>s/', function()
+      map('n', '<leader>s/', function()
         builtin.live_grep {
           grep_open_files = true,
           prompt_title = 'Live Grep in Open Files',
@@ -456,7 +481,7 @@ require('lazy').setup({
       end, { desc = '[S]earch [/] in Open Files' })
 
       -- Shortcut for searching your Neovim configuration files
-      vim.keymap.set('n', '<leader>sn', function()
+      map('n', '<leader>sn', function()
         builtin.find_files { cwd = vim.fn.stdpath 'config' }
       end, { desc = '[S]earch [N]eovim files' })
     end,
@@ -474,6 +499,17 @@ require('lazy').setup({
         { path = '${3rd}/luv/library', words = { 'vim%.uv' } },
       },
     },
+  },
+  {
+    'zbirenbaum/copilot.lua',
+    dependencies = {
+      -- 'copilotlsp-nvim/copilot-lsp', -- (optional) for NES functionality
+    },
+    cmd = 'Copilot',
+    event = 'InsertEnter',
+    config = function()
+      require('copilot').setup {}
+    end,
   },
   {
     -- Main LSP Configuration
@@ -532,7 +568,7 @@ require('lazy').setup({
           -- for LSP related items. It sets the mode, buffer and description for us each time.
           local map = function(keys, func, desc, mode)
             mode = mode or 'n'
-            vim.keymap.set(mode, keys, func, { buffer = event.buf, desc = 'LSP: ' .. desc })
+            map(mode, keys, func, { buffer = event.buf, desc = 'LSP: ' .. desc })
           end
 
           -- Rename the variable under your cursor.
@@ -618,11 +654,11 @@ require('lazy').setup({
           -- code, if the language server you are using supports them
           --
           -- This may be unwanted, since they displace some of your code
-          if client and client_supports_method(client, vim.lsp.protocol.Methods.textDocument_inlayHint, event.buf) then
-            map('<leader>th', function()
-              vim.lsp.inlay_hint.enable(not vim.lsp.inlay_hint.is_enabled { bufnr = event.buf })
-            end, '[T]oggle Inlay [H]ints')
-          end
+          -- if client and client_supports_method(client, vim.lsp.protocol.Methods.textDocument_inlayHint, event.buf) then
+          --   map('<leader>th', function()
+          --     vim.lsp.inlay_hint.enable(not vim.lsp.inlay_hint.is_enabled { bufnr = event.buf })
+          --   end, '[T]oggle Inlay [H]ints')
+          -- end
         end,
       })
 
@@ -673,7 +709,17 @@ require('lazy').setup({
       local servers = {
         -- clangd = {},
         -- gopls = {},
-        -- pyright = {},
+        basedpyright = {
+          settings = {
+            basedpyright = {
+              analysis = {
+                autoSearchPaths = true,
+                useLibraryCodeForTypes = true,
+                diagnosticMode = 'openFilesOnly',
+              },
+            },
+          },
+        },
         -- rust_analyzer = {},
         -- ... etc. See `:help lspconfig-all` for a list of all the pre-configured LSPs
         --
@@ -769,7 +815,7 @@ require('lazy').setup({
       formatters_by_ft = {
         lua = { 'stylua' },
         -- Conform can also run multiple formatters sequentially
-        -- python = { "isort", "black" },
+        python = { 'ruff_fix', 'ruff_format', 'ruff_organize_imports' },
         --
         -- You can use 'stop_after_first' to run the first available formatter from the list
         -- javascript = { "prettierd", "prettier", stop_after_first = true },
@@ -783,32 +829,33 @@ require('lazy').setup({
     version = '1.*',
     dependencies = {
       -- Snippet Engine
-      {
-        'L3MON4D3/LuaSnip',
-        version = '2.*',
-        build = (function()
-          -- Build Step is needed for regex support in snippets.
-          -- This step is not supported in many windows environments.
-          -- Remove the below condition to re-enable on windows.
-          if vim.fn.has 'win32' == 1 or vim.fn.executable 'make' == 0 then
-            return
-          end
-          return 'make install_jsregexp'
-        end)(),
-        dependencies = {
-          -- `friendly-snippets` contains a variety of premade snippets.
-          --    See the README about individual language/framework/plugin snippets:
-          --    https://github.com/rafamadriz/friendly-snippets
-          -- {
-          --   'rafamadriz/friendly-snippets',
-          --   config = function()
-          --     require('luasnip.loaders.from_vscode').lazy_load()
-          --   end,
-          -- },
-        },
-        opts = {},
-      },
+      -- {
+      --   'L3MON4D3/LuaSnip',
+      --   version = '2.*',
+      --   build = (function()
+      --     -- Build Step is needed for regex support in snippets.
+      --     -- This step is not supported in many windows environments.
+      --     -- Remove the below condition to re-enable on windows.
+      --     if vim.fn.has 'win32' == 1 or vim.fn.executable 'make' == 0 then
+      --       return
+      --     end
+      --     return 'make install_jsregexp'
+      --   end)(),
+      --   dependencies = {
+      --     -- `friendly-snippets` contains a variety of premade snippets.
+      --     --    See the README about individual language/framework/plugin snippets:
+      --     --    https://github.com/rafamadriz/friendly-snippets
+      --     -- {
+      --     --   'rafamadriz/friendly-snippets',
+      --     --   config = function()
+      --     --     require('luasnip.loaders.from_vscode').lazy_load()
+      --     --   end,
+      --     -- },
+      --   },
+      --   opts = {},
+      -- },
       'folke/lazydev.nvim',
+      'giuxtaposition/blink-cmp-copilot',
     },
     --- @module 'blink.cmp'
     --- @type blink.cmp.Config
@@ -835,7 +882,7 @@ require('lazy').setup({
         -- <c-k>: Toggle signature help
         --
         -- See :h blink-cmp-config-keymap for defining your own keymap
-        preset = 'default',
+        preset = 'enter',
 
         -- For more advanced Luasnip keymaps (e.g. selecting choice nodes, expansion) see:
         --    https://github.com/L3MON4D3/LuaSnip?tab=readme-ov-file#keymaps
@@ -854,13 +901,19 @@ require('lazy').setup({
       },
 
       sources = {
-        default = { 'lsp', 'path', 'snippets', 'lazydev' },
+        default = { 'lsp', 'copilot', 'path', 'buffer', 'lazydev' },
         providers = {
           lazydev = { module = 'lazydev.integrations.blink', score_offset = 100 },
+          copilot = {
+            name = 'copilot',
+            module = 'blink-cmp-copilot',
+            score_offset = 100,
+            async = true,
+          },
         },
       },
 
-      snippets = { preset = 'luasnip' },
+      -- snippets = { preset = 'luasnip' },
 
       -- Blink.cmp includes an optional, recommended rust fuzzy matcher,
       -- which automatically downloads a prebuilt binary when enabled.
@@ -881,20 +934,12 @@ require('lazy').setup({
     -- change the command in the config to whatever the name of that colorscheme is.
     --
     -- If you want to see what colorschemes are already installed, you can use `:Telescope colorscheme`.
-    'folke/tokyonight.nvim',
-    priority = 1000, -- Make sure to load this before all the other start plugins.
+    'catppuccin/nvim',
+    priority = 1000,
     config = function()
       ---@diagnostic disable-next-line: missing-fields
-      require('tokyonight').setup {
-        styles = {
-          comments = { italic = false }, -- Disable italics in comments
-        },
-      }
-
-      -- Load the colorscheme here.
-      -- Like many other themes, this one has different styles, and you could load
-      -- any other, such as 'tokyonight-storm', 'tokyonight-moon', or 'tokyonight-day'.
-      vim.cmd.colorscheme 'tokyonight-night'
+      require('catppuccin').setup()
+      vim.cmd.colorscheme 'catppuccin-macchiato'
     end,
   },
 
@@ -917,7 +962,7 @@ require('lazy').setup({
       -- - saiw) - [S]urround [A]dd [I]nner [W]ord [)]Paren
       -- - sd'   - [S]urround [D]elete [']quotes
       -- - sr)'  - [S]urround [R]eplace [)] [']
-      require('mini.surround').setup()
+      -- require('mini.surround').setup()
 
       -- Simple and easy statusline.
       --  You could remove this setup call if you don't like it,
@@ -940,22 +985,59 @@ require('lazy').setup({
   },
   { -- Highlight, edit, and navigate code
     'nvim-treesitter/nvim-treesitter',
+    lazy = false,
     build = ':TSUpdate',
-    main = 'nvim-treesitter.configs', -- Sets main module to use for opts
-    -- [[ Configure Treesitter ]] See `:help nvim-treesitter`
-    opts = {
-      ensure_installed = { 'bash', 'c', 'diff', 'html', 'lua', 'luadoc', 'markdown', 'markdown_inline', 'query', 'vim', 'vimdoc' },
-      -- Autoinstall languages that are not installed
-      auto_install = true,
-      highlight = {
-        enable = true,
-        -- Some languages depend on vim's regex highlighting system (such as Ruby) for indent rules.
-        --  If you are experiencing weird indenting issues, add the language to
-        --  the list of additional_vim_regex_highlighting and disabled languages for indent.
-        additional_vim_regex_highlighting = { 'ruby' },
-      },
-      indent = { enable = true, disable = { 'ruby' } },
-    },
+    branch = 'main',
+    -- [[ Configure Treesitter ]] See `:help nvim-treesitter-intro`
+    config = function()
+      ---@param buf integer
+      ---@param language string
+      local function treesitter_try_attach(buf, language)
+        -- check if parser exists and load it
+        if not vim.treesitter.language.add(language) then
+          return
+        end
+        -- enables syntax highlighting and other treesitter features
+        vim.treesitter.start(buf, language)
+
+        -- enables treesitter based folds
+        -- for more info on folds see `:help folds`
+        -- vim.wo.foldexpr = 'v:lua.vim.treesitter.foldexpr()'
+
+        -- enables treesitter based indentation
+        vim.bo.indentexpr = "v:lua.require'nvim-treesitter'.indentexpr()"
+      end
+
+      local available_parsers = require('nvim-treesitter').get_available()
+      vim.api.nvim_create_autocmd('FileType', {
+        callback = function(args)
+          local buf, filetype = args.buf, args.match
+          local language = vim.treesitter.language.get_lang(filetype)
+          if not language then
+            return
+          end
+
+          local installed_parsers = require('nvim-treesitter').get_installed 'parsers'
+
+          if vim.tbl_contains(installed_parsers, language) then
+            -- enable the parser if it is installed
+            treesitter_try_attach(buf, language)
+          elseif vim.tbl_contains(available_parsers, language) then
+            -- if a parser is available in `nvim-treesitter` enable it after ensuring it is installed
+            require('nvim-treesitter').install(language):await(function()
+              treesitter_try_attach(buf, language)
+            end)
+          else
+            -- try to enable treesitter features in case the parser exists but is not available from `nvim-treesitter`
+            treesitter_try_attach(buf, language)
+          end
+        end,
+      })
+
+      -- ensure basic parser are installed
+      local parsers = { 'bash', 'c', 'diff', 'html', 'lua', 'luadoc', 'markdown', 'markdown_inline', 'python', 'typescript', 'query', 'vim', 'vimdoc' }
+      require('nvim-treesitter').install(parsers)
+    end,
     -- There are additional nvim-treesitter modules that you can use to interact
     -- with nvim-treesitter. You should go explore a few and see what interests you:
     --
@@ -964,6 +1046,14 @@ require('lazy').setup({
     --    - Treesitter + textobjects: https://github.com/nvim-treesitter/nvim-treesitter-textobjects
   },
 
+  {
+    'almo7aya/openingh.nvim',
+    config = function()
+      map('n', '<Leader>ghr', ':OpenInGHRepo <CR>', { silent = true, noremap = true })
+      map('n', '<Leader>ghf', ':OpenInGHFile <CR>', { silent = true, noremap = true })
+      map('v', '<Leader>ghf', ':OpenInGHFileLines <CR>', { silent = true, noremap = true })
+    end,
+  },
   -- The following comments only work if you have downloaded the kickstart repo, not just copy pasted the
   -- init.lua. If you want these files, they are in the repository, so you can just download them and
   -- place them in the correct locations.
@@ -977,7 +1067,7 @@ require('lazy').setup({
   -- require 'kickstart.plugins.indent_line',
   -- require 'kickstart.plugins.lint',
   -- require 'kickstart.plugins.autopairs',
-  -- require 'kickstart.plugins.neo-tree',
+  require 'kickstart.plugins.neo-tree',
   -- require 'kickstart.plugins.gitsigns', -- adds gitsigns recommend keymaps
 
   -- NOTE: The import below can automatically add your own plugins, configuration, etc from `lua/custom/plugins/*.lua`
