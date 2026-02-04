@@ -1054,6 +1054,66 @@ require('lazy').setup({
       map('v', '<Leader>ghf', ':OpenInGHFileLines <CR>', { silent = true, noremap = true })
     end,
   },
+  {
+    'nvim-neotest/neotest',
+    dependencies = {
+      'nvim-neotest/nvim-nio',
+      'nvim-lua/plenary.nvim',
+      'antoinemadec/FixCursorHold.nvim',
+      'nvim-treesitter/nvim-treesitter',
+      'nvim-neotest/neotest-python',
+    },
+    config = function()
+      require('neotest').setup {
+        adapters = {
+          require 'neotest-python' {
+            runner = 'pytest',
+            args = { '-s' },
+            dap = { justMyCode = false },
+          },
+        },
+        floating = {
+          border = 'rounded',
+          max_height = 0.8,
+          max_width = 0.8,
+          options = {},
+        },
+      }
+
+      map('n', '<Leader>ts', function()
+        require('neotest').summary.toggle()
+      end, { silent = true, noremap = true, desc = '[T]est toggle the [S]ummary panel' })
+
+      map('n', '<Leader>top', function()
+        require('neotest').output_panel.toggle()
+      end, { silent = true, noremap = true, desc = '[T]est toggle the [O]utput panel' })
+
+      map('n', '<Leader>tol', function()
+        require('neotest').output.open { enter = true, last_run = true }
+      end, { silent = true, noremap = true, desc = '[T]est [O]pen [L]ast output' })
+
+      map('n', '<Leader>tc', function()
+        require('neotest').output_panel.clear()
+      end, { silent = true, noremap = true, desc = '[T]est [C]lear' })
+
+      map('n', '<Leader>ta', function()
+        require('neotest').run.attach()
+      end, { silent = true, noremap = true, desc = '[T]est [A]ttach the nearest test' })
+
+      map('n', '<Leader>tt', function()
+        require('neotest').run.run()
+      end, { silent = true, noremap = true, desc = '[T]est the closest [T]est' })
+
+      map('n', '<Leader>tf', function()
+        require('neotest').run.run(vim.fn.expand '%')
+      end, { silent = true, noremap = true, desc = '[T]est the current [F]ile' })
+
+      map('n', '<Leader>tl', function()
+        require('neotest').run.run_last()
+      end, { silent = true, noremap = true, desc = '[T]est the [L]ast run again' })
+    end,
+  },
+  --
   -- The following comments only work if you have downloaded the kickstart repo, not just copy pasted the
   -- init.lua. If you want these files, they are in the repository, so you can just download them and
   -- place them in the correct locations.
