@@ -911,6 +911,9 @@ require('lazy').setup({
             async = true,
           },
         },
+        -- per_filetype = {
+        --   codecompanion = { 'codecompanion' },
+        -- },
       },
 
       -- snippets = { preset = 'luasnip' },
@@ -1113,6 +1116,137 @@ require('lazy').setup({
       end, { silent = true, noremap = true, desc = '[T]est the [L]ast run again' })
     end,
   },
+  -- {
+  --   'olimorris/codecompanion.nvim',
+  --   version = '^18.0.0',
+  --   opts = {},
+  --   dependencies = {
+  --     'nvim-lua/plenary.nvim',
+  --     'nvim-treesitter/nvim-treesitter',
+  --   },
+  --   config = function()
+  --     require('codecompanion').setup {
+  --       display = {
+  --         action_palette = {
+  --           width = 95,
+  --           height = 10,
+  --           prompt = 'Prompt ', -- Prompt used for interactive LLM calls
+  --           provider = 'default', -- Can be "default", "telescope", "fzf_lua", "mini_pick" or "snacks". If not specified, the plugin will autodetect installed providers.
+  --           opts = {
+  --             show_preset_actions = true, -- Show the preset actions in the action palette?
+  --             show_preset_prompts = true, -- Show the preset prompts in the action palette?
+  --             title = 'CodeCompanion actions', -- The title of the action palette
+  --           },
+  --         },
+  --       },
+  --       interactions = {
+  --         chat = {
+  --           -- auto_scroll = false,
+  --           -- intro_message = 'Welcome to CodeCompanion ✨! Press ? for options',
+  --           -- separator = '─', -- The separator between the different messages in the chat buffer
+  --           -- show_context = true, -- Show context (from slash commands and variables) in the chat buffer?
+  --           -- show_header_separator = false, -- Show header separators in the chat buffer? Set this to false if you're using an external markdown formatting plugin
+  --           -- show_settings = false, -- Show LLM settings at the top of the chat buffer?
+  --           -- show_token_count = true, -- Show the token count for each response?
+  --           -- show_tools_processing = true, -- Show the loading message when tools are being executed?
+  --           -- start_in_insert_mode = false, -- Open the chat buffer in insert mode?
+  --           adapter = {
+  --             name = 'claude_code',
+  --             model = 'opus',
+  --           },
+  --           icons = {
+  --             buffer_sync_all = '󰪴 ',
+  --             buffer_sync_diff = ' ',
+  --             chat_context = ' ',
+  --             chat_fold = ' ',
+  --             tool_pending = '  ',
+  --             tool_in_progress = '  ',
+  --             tool_failure = '  ',
+  --             tool_success = '  ',
+  --           },
+  --           fold_context = true,
+  --           slash_commands = {
+  --             ['file'] = {
+  --               -- Use Telescope as the provider for the /file command
+  --               opts = {
+  --                 provider = 'telescope', -- Can be "default", "telescope", "fzf_lua", "mini_pick" or "snacks"
+  --               },
+  --             },
+  --           },
+  --           keymaps = {
+  --             next_chat = {
+  --               modes = { n = 'gbn' },
+  --               index = 11,
+  --               callback = 'keymaps.next_chat',
+  --               description = '[Nav] Next chat',
+  --             },
+  --             send = {
+  --               modes = { n = '<C-s>', i = '<C-s>' },
+  --               opts = {},
+  --             },
+  --             close = {
+  --               modes = { n = '<C-c>', i = '<C-c>' },
+  --               opts = {},
+  --             },
+  --             -- Add further custom keymaps here
+  --           },
+  --           opts = {
+  --             completion_provider = 'blink', -- blink|cmp|coc|default
+  --           },
+  --         },
+  --         inline = {
+  --           keymaps = {
+  --             accept_change = {
+  --               modes = { n = 'tda' }, -- Remember this as DiffAccept
+  --             },
+  --             reject_change = {
+  --               modes = { n = 'tdr' }, -- Remember this as DiffReject
+  --             },
+  --             always_accept = {
+  --               modes = { n = 'tdy' }, -- Remember this as DiffYolo
+  --             },
+  --           },
+  --         },
+  --       },
+  --       adapters = {
+  --         acp = {
+  --           claude_code = function()
+  --             return require('codecompanion.adapters').extend('claude_code', {
+  --               env = {
+  --                 api_key = 'CLAUDE_CODE_OAUTH_TOKEN',
+  --               },
+  --             })
+  --           end,
+  --         },
+  --       },
+  --       rules = {
+  --         default = {
+  --           description = 'Collection of common files for all projects',
+  --           files = {
+  --             'AGENT.md',
+  --             'AGENTS.md',
+  --             { path = 'CLAUDE.md', parser = 'claude' },
+  --             { path = 'CLAUDE.local.md', parser = 'claude' },
+  --             { path = '~/.claude/CLAUDE.md', parser = 'claude' },
+  --           },
+  --           is_preset = true,
+  --         },
+  --         opts = {
+  --           chat = {
+  --             autoload = 'default', -- The rule groups to load
+  --             enabled = true,
+  --           },
+  --         },
+  --       },
+  --       opts = {
+  --         language = 'English',
+  --         opts = {
+  --           log_level = 'DEBUG',
+  --         },
+  --       },
+  --     }
+  --   end,
+  -- },
   --
   -- The following comments only work if you have downloaded the kickstart repo, not just copy pasted the
   -- init.lua. If you want these files, they are in the repository, so you can just download them and
