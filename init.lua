@@ -104,6 +104,9 @@ vim.o.number = true
 --  Experiment for yourself to see if you like it!
 -- vim.o.relativenumber = true
 
+-- Don't wrap lines too soon, formatters do that.
+vim.wo.wrap = false
+
 -- Enable mouse mode, can be useful for resizing splits for example!
 vim.o.mouse = 'a'
 
@@ -209,7 +212,7 @@ map('n', '<C-k>', '<C-w><C-k>', { desc = 'Move focus to the upper window' })
 -- map("n", ";", ":", { desc = "CMD enter command mode" })
 -- map("i", "jk", "<ESC>")
 
-map('t', '<Esc>', '<C-\\><C-n>', { desc = 'exit terminal mode' })
+-- map('t', '<Esc>', '<C-\\><C-n>', { desc = 'exit terminal mode' })
 map('n', 'vv', ':vsplit<CR>', { desc = 'vertical split' })
 map('n', 'ss', ':split<CR>', { desc = 'horizontal split' })
 map('n', '<leader>ee', ':NvimTreeFindFile<CR>', { desc = 'Find file in nvim-tree' })
@@ -298,6 +301,15 @@ require('lazy').setup({
   { -- Adds git related signs to the gutter, as well as utilities for managing changes
     'lewis6991/gitsigns.nvim',
     opts = {
+      current_line_blame = true,
+      current_line_blame_opts = {
+        virt_text = true,
+        virt_text_pos = 'eol', -- 'eol' | 'overlay' | 'right_align'
+        delay = 1000,
+        ignore_whitespace = false,
+        virt_text_priority = 100,
+        use_focus = true,
+      },
       signs = {
         add = { text = '+' },
         change = { text = '~' },
@@ -306,6 +318,9 @@ require('lazy').setup({
         changedelete = { text = '~' },
       },
     },
+    config = function()
+      vim.api.nvim_set_hl(0, 'GitsignsCurrentLineBlame', { fg = '#aaaaaa' })
+    end,
   },
 
   -- NOTE: Plugins can also be configured to run Lua code when they are loaded.
@@ -898,6 +913,26 @@ require('lazy').setup({
         -- By default, you may press `<c-space>` to show the documentation.
         -- Optionally, set `auto_show = true` to show the documentation after a delay.
         documentation = { auto_show = false, auto_show_delay_ms = 500 },
+
+        -- Customize the menu, trying to make is as large as necessary
+        menu = {
+          draw = {
+            components = {
+              label = {
+                width = { fill = true, max = 120 },
+              },
+              label_description = {
+                width = { max = 120 },
+              },
+              source_name = {
+                width = { max = 120 },
+              },
+              source_id = {
+                width = { max = 120 },
+              },
+            },
+          },
+        },
       },
 
       sources = {
@@ -1073,6 +1108,10 @@ require('lazy').setup({
             runner = 'pytest',
             args = { '-s' },
             dap = { justMyCode = false },
+            is_test_file = function(file_path)
+              local file_name = string.match(file_path, '[^/\\]+$')
+              return string.match(file_name, '^test_.*%.py$') or string.match(file_name, '^.*%.feature$')
+            end,
           },
         },
         floating = {
@@ -1247,6 +1286,120 @@ require('lazy').setup({
   --     }
   --   end,
   -- },
+
+  {
+    'folke/sidekick.nvim',
+    opts = {
+      -- add any options here
+      nes = { enabled = false },
+      cli = {
+        mux = {
+          backend = 'tmux',
+          enabled = false,
+          split = {
+            vertical = true, -- vertical or horizontal split
+            size = 0.5, -- size of the split (0-1 for percentage)
+          },
+        },
+        win = {
+          split = {
+            width = 120, -- set to 0 for default split width
+            height = 0, -- set to 0 for default split height
+          },
+        },
+      },
+      prompts = {
+        changes = 'Can you review my changes?',
+        diagnostics = 'Can you help me fix the diagnostics in {file}?\n{diagnostics}',
+        diagnostics_all = 'Can you help me fix these diagnostics?\n{diagnostics_all}',
+        document = 'Add documentation to {function|line}',
+        explain = 'Explain {this}',
+        fix = 'Can you fix {this}?',
+        optimize = 'How can {this} be optimized?',
+        review = 'Can you review {file} for any issues or improvements?',
+        tests = 'Can you write tests for {this}?',
+        -- simple context prompts
+        buffers = '{buffers}',
+        file = '{file}',
+        line = '{line}',
+        position = '{position}',
+        quickfix = '{quickfix}',
+        selection = '{selection}',
+        ['function'] = '{function}',
+        class = '{class}',
+      },
+    },
+    keys = {
+      -- I'm not interested in next edit suggestion
+      -- {
+      --   '<tab>',
+      --   function()
+      --     -- if there is a next edit, jump to it, otherwise apply it if any
+      --     if not require('sidekick').nes_jump_or_apply() then
+      --       return '<Tab>' -- fallback to normal tab
+      --     end
+      --   end,
+      --   expr = true,
+      --   desc = 'Goto/Apply Next Edit Suggestion',
+      -- },
+      {
+        '<leader>aa',
+        function()
+          require('sidekick.cli').toggle()
+        end,
+        desc = 'Sidekick Toggle CLI',
+      },
+      {
+        '<leader>as',
+        function()
+          require('sidekick.cli').select()
+        end,
+        -- Or to select only installed tools:
+        -- require("sidekick.cli").select({ filter = { installed = true } })
+        desc = 'Select CLI',
+      },
+      {
+        '<leader>at',
+        function()
+          require('sidekick.cli').send { msg = '{this}' }
+        end,
+        mode = { 'x', 'n' },
+        desc = 'Send This',
+      },
+      {
+        '<leader>af',
+        function()
+          require('sidekick.cli').send { msg = '{file}' }
+        end,
+        desc = 'Send File',
+      },
+      {
+        '<leader>av',
+        function()
+          require('sidekick.cli').send { msg = '{selection}' }
+        end,
+        mode = { 'x' },
+        desc = 'Send Visual Selection',
+      },
+      {
+        '<leader>ap',
+        function()
+          require('sidekick.cli').prompt()
+        end,
+        mode = { 'n', 'x' },
+        desc = 'Sidekick Select Prompt',
+      },
+      -- Example of a keybinding to open Claude directly
+      {
+        '<leader>ac',
+        function()
+          require('sidekick.cli').toggle { name = 'claude', focus = true }
+        end,
+        desc = 'Sidekick Toggle Claude',
+      },
+    },
+  },
+
   --
   -- The following comments only work if you have downloaded the kickstart repo, not just copy pasted the
   -- init.lua. If you want these files, they are in the repository, so you can just download them and
