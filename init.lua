@@ -452,6 +452,16 @@ require('lazy').setup({
         --   },
         -- },
         -- pickers = {}
+        defaults = {
+          sorting_strategy = 'ascending',
+          layout_strategy = 'vertical',
+          layout_config = {
+            mirror = true,
+            prompt_position = 'top',
+            width = 0.95,
+            height = 0.95,
+          },
+        },
         extensions = {
           ['ui-select'] = {
             require('telescope.themes').get_dropdown(),
